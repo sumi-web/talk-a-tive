@@ -1,0 +1,9 @@
+{
+  "name": "talk-a-tive",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "prettierrc": "^0.0.0-5"
+  }
+}
