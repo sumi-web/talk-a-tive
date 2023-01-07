@@ -83,10 +83,10 @@ class Logging {
   private getColorReset(): string {
     return '\x1b[0m';
   }
-  print(foregroundColor: string = 'white', backgroundColor: string = 'black', ...args: any) {
+  print(foregroundColor: string = 'white', backgroundColor: string = 'black', type = 'INFO', ...args: any) {
     const c = this.getColor(foregroundColor, backgroundColor);
 
-    console.log(c, args.join(''), this.getColorReset());
+    console.log(c, `[${new Date().toLocaleString()}] [${type}] ${args.join('')}`, this.getColorReset());
 
     if (this.closeByNewLine) {
       console.log('');
@@ -119,6 +119,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'INFO',
         args.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -147,6 +148,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'WARN',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -156,7 +158,8 @@ class Logging {
   error(...strings: any): void {
     const fg = 'red';
     const bg = '';
-    const icon = '\u26D4';
+
+    const icon = '⛔ ';
     const groupTile = ` ${this.errorsTitle}`;
     if (strings.length > 1) {
       const c = this.getColor(fg, bg);
@@ -175,6 +178,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'ERROR',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -203,6 +207,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'INFO',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -212,7 +217,7 @@ class Logging {
   success(...strings: any): void {
     const fg = 'green';
     const bg = '';
-    const icon = '\u2713';
+    const icon = '✅ ';
     const groupTile = ` ${this.successesTitle}`;
     if (strings.length > 1) {
       const c = this.getColor(fg, bg);
@@ -231,6 +236,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'SUCCESS',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -259,6 +265,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'DEBUG',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),
@@ -287,6 +294,7 @@ class Logging {
       this.print(
         fg,
         bg,
+        'ASSERT',
         strings.map((item: any) => {
           return `${this.useIcons ? `${icon} ` : ''}${item}`;
         }),

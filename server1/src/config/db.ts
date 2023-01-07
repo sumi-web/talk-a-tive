@@ -3,5 +3,5 @@ import { Environment } from './environment';
 
 export const connectDatabase = async () => {
   mongoose.set('strictQuery', false);
-  mongoose.connect(Environment.mongoUrl);
+  mongoose.connect(Environment.MONGO_URL);
 };
