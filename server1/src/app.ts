@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import { asyncHandler } from './middleware/async.middleware';
 import { requestLogger } from './middleware/request.middleware';
 import { apiRules } from './middleware/rules.middleware';
+import authRouter from './routes/auth.route';
 import { errorHandler } from './utils/errorHandler';
 import { logger } from './utils/logger';
 
@@ -16,6 +17,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(apiRules);
 
 /** Routes */
+app.use('/api/v1/auth/', authRouter);
 
 /** HealthCheck */
 app.get(

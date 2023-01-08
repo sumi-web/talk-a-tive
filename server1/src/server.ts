@@ -4,8 +4,10 @@ import app from './app';
 import { connectDatabase } from './config/db';
 import { Environment } from './config/environment';
 import { logger } from './utils/logger';
+import { setLogLevel } from '@typegoose/typegoose';
 
 dotenv.config();
+setLogLevel('DEBUG');
 
 // handling uncaught exception -- this should be on top to catch all undefined variables errors
 process.on('uncaughtException', (err: Error) => {

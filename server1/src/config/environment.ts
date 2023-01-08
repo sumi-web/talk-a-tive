@@ -9,4 +9,5 @@ export class Environment {
     : `mongodb://127.0.0.1/${this.DB_NAME}`;
   public static readonly SERVER_PORT: number = Number(process.env.PORT) || 5001;
   public static readonly ISSUER: string = process.env.ISSUER || '';
+  public static readonly JWT_SECRET: string = process.env.JWT_SECRET || '8b3d388a6f2728eae8713d42a71ccdd0';
 }
