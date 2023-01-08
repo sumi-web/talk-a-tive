@@ -1,11 +1,14 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
+import { asyncHandler } from './middleware/async.middleware';
 import { requestLogger } from './middleware/request.middleware';
 import { apiRules } from './middleware/rules.middleware';
+import { errorHandler } from './utils/errorHandler';
 import { logger } from './utils/logger';
 
 const app = express();
 
+// middleware
 app.use(helmet());
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
@@ -15,16 +18,21 @@ app.use(apiRules);
 /** Routes */
 
 /** HealthCheck */
-app.get('/ping', (_, res) => {
-  res.status(200).json({ message: 'ping' });
-});
+app.get(
+  '/ping',
+  asyncHandler(async (_req: Request, res: Response) => {
+    res.status(200).json({ message: 'ping' });
+  }),
+);
+
+/** error middleware */
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => errorHandler.handleError(err, res));
 
 /** Error handling */
-app.use((_req, res) => {
-  const error = new Error('not found');
+app.use('*', (_req, res) => {
+  const error = new Error('page not found');
 
   logger.error(error);
-  console.log(error);
 
   return res.status(404).json({ message: error.message });
 });
