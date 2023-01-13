@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import multer from 'multer';
 import { AppError, StatusCode } from '../utils/appError';
 
 export const errorMiddleWare = (err: any, res: Response) => {
@@ -27,6 +28,11 @@ export const errorMiddleWare = (err: any, res: Response) => {
   if (err.name === 'TokenExpiredError') {
     const message = `Json web token is expired, try again`;
     err = new AppError({ message, statusCode: StatusCode.BAD_REQUEST });
+  }
+
+  // multer error
+  if (err instanceof multer.MulterError) {
+    console.log('multer error', err);
   }
 
   res.status(err.statusCode).json({

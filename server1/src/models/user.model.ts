@@ -24,7 +24,7 @@ export class User {
   @prop({ required: true, minlength: 6, maxlength: 20 })
   public password!: string;
 
-  @prop()
+  @prop({ required: true })
   public image!: string;
 
   @prop({ required: true, type: String, enum: UserRole, default: UserRole.USER })
