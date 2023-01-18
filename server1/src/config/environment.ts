@@ -9,5 +9,10 @@ export class Environment {
     : `mongodb://127.0.0.1/${this.DB_NAME}`;
   public static readonly SERVER_PORT: number = Number(process.env.PORT) || 5001;
   public static readonly ISSUER: string = process.env.ISSUER || '';
-  public static readonly JWT_SECRET: string = process.env.JWT_SECRET || '8b3d388a6f2728eae8713d42a71ccdd0';
+  public static readonly ACCESS_JWT_SECRET: string = process.env.ACCESS_JWT_SECRET || '8b3d388a6f2728ezp';
+  public static readonly REFRESH_JWT_SECRET: string = process.env.REFRESH_JWT_SECRET || 'ae8713d42a71ccdd0';
+  public static readonly COOKIE_NAME: string = 'talkativeRefreshJwt';
+  public static readonly ACCESS_JWT_EXPIRY: number = 60 * 2; // 2min
+  public static readonly REFRESH_JWT_EXPIRY: number = 60 * 5; // 5min
+  public static readonly REFRESH_TOKEN_COOKIE_EXPIRY = 1000 * 60 * 5; //5 min
 }

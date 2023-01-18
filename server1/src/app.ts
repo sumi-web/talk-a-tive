@@ -3,34 +3,45 @@ import helmet from 'helmet';
 import { asyncHandler } from './middleware/async.middleware';
 import { requestLogger } from './middleware/request.middleware';
 import { apiRules } from './middleware/rules.middleware';
-import authRouter from './routes/auth.route';
 import { errorHandler } from './utils/errorHandler';
 import { logger } from './utils/logger';
+import cors from 'cors';
+import router from './routes/index.route';
 
 const app = express();
 
-// middleware
+/** Middlewares */
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  }),
+);
 app.use(helmet());
+// app.use(cookieParser());
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(apiRules);
 
-/** Routes */
-app.use('/api/v1/auth/', authRouter);
+/** Configuring Session */
+// app.use(configureSession());
+
+/** configuring index routes */
+app.use('/api/v1', router);
 
 /** HealthCheck */
 app.get(
   '/ping',
   asyncHandler(async (_req: Request, res: Response) => {
-    res.status(200).json({ message: 'ping' });
+    res.status(200).json({ message: 'welcome to Talk a tive' });
   }),
 );
 
-/** error middleware */
+/** Error middleware */
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => errorHandler.handleError(err, res));
 
-/** Error handling */
+/** Page not found */
 app.use('*', (_req, res) => {
   const error = new Error('page not found');
 
