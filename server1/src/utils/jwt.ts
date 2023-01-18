@@ -1,20 +1,19 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
-import { Environment } from '../config/environment';
 
-interface JwtPayLoad {
+export interface JwtPayloadData extends JwtPayload {
   userId: Types.ObjectId | string;
-  role: 'USER' | 'ADMIN';
+  role?: 'USER' | 'ADMIN';
 }
 
 class JWTHelper {
-  public encode(data: JwtPayLoad, expiresIn = '60 days') {
-    return jwt.sign(data, Environment.JWT_SECRET, { expiresIn, issuer: Environment.ISSUER });
+  public encode(data: JwtPayloadData, secret: string, expiresIn: number | string) {
+    return jwt.sign(data, secret, { expiresIn: expiresIn });
   }
 
-  public verify(token: string) {
+  public verify(token: string, secret: string) {
     try {
-      return jwt.verify(token, Environment.JWT_SECRET, { issuer: Environment.ISSUER, ignoreExpiration: false });
+      return jwt.verify(token, secret);
     } catch (ex) {
       return false;
     }

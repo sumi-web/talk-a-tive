@@ -3,15 +3,22 @@ import helmet from 'helmet';
 import { asyncHandler } from './middleware/async.middleware';
 import { requestLogger } from './middleware/request.middleware';
 import { apiRules } from './middleware/rules.middleware';
-import authRouter from './routes/auth.route';
 import { errorHandler } from './utils/errorHandler';
 import { logger } from './utils/logger';
-import { generateUniqueKey } from './utils/uniqueId';
+import cors from 'cors';
+import router from './routes/index.route';
 
 const app = express();
 
 /** Middlewares */
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  }),
+);
 app.use(helmet());
+// app.use(cookieParser());
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
@@ -20,15 +27,13 @@ app.use(apiRules);
 /** Configuring Session */
 // app.use(configureSession());
 
-/** Routes */
-app.use('/api/v1/auth/', authRouter);
+/** configuring index routes */
+app.use('/api/v1', router);
 
 /** HealthCheck */
 app.get(
   '/ping',
   asyncHandler(async (_req: Request, res: Response) => {
-    console.log('cookie', generateUniqueKey());
-
     res.status(200).json({ message: 'welcome to Talk a tive' });
   }),
 );

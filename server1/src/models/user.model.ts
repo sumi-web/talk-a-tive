@@ -28,6 +28,9 @@ export class User {
   @prop({ required: true })
   public image!: string;
 
+  @prop({ required: true, default: false })
+  public isAdmin!: boolean;
+
   @prop({ required: true, type: String, enum: UserRole, default: UserRole.USER })
   public role!: UserRole;
 

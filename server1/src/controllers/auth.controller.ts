@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { Environment } from '../config/environment';
 import { asyncHandler } from '../middleware/async.middleware';
 import { UserModel } from '../models/user.model';
 import { AppError, StatusCode } from '../utils/appError';
+import jwtHelper from '../utils/jwt';
 import { removeFile } from '../utils/removeFile';
 
 /* Creating user */
@@ -20,7 +22,7 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     /** check if image is stored, then deleting the saved image if user already exist */
     if (req.file) removeFile(req.file.path);
 
-    throw new AppError({ message: `user already exist with email ${req.body.email}`, statusCode: StatusCode.BAD_REQUEST });
+    throw new AppError({ message: `User already exist with email ${req.body.email}`, statusCode: StatusCode.BAD_REQUEST });
   }
 
   const user = await UserModel.create({
@@ -30,18 +32,26 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     image: req.file.path,
   });
 
-  req.session.userId = user._id;
+  // create access token
+  const accessToken = jwtHelper.encode({ userId: user._id }, Environment.ACCESS_JWT_SECRET, Environment.ACCESS_JWT_EXPIRY);
+  // create refresh token
+  const refreshToken = jwtHelper.encode({ userId: user._id }, Environment.REFRESH_JWT_SECRET, Environment.REFRESH_JWT_EXPIRY);
 
   const { password: userPass, ...rest } = user.toObject();
 
-  res.status(StatusCode.CREATED).json({ success: true, data: { ...rest, token: '' } });
+  res
+    .status(StatusCode.CREATED)
+    .cookie(Environment.COOKIE_NAME, refreshToken, {
+      maxAge: Environment.REFRESH_TOKEN_COOKIE_EXPIRY,
+      httpOnly: Environment.IS_PROD,
+      path: '/',
+    })
+    .json({ success: true, data: { ...rest, accessToken } });
 });
 
 /* Logging In */
 export const logInUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  console.log('session', req.session);
 
   if (!password || !email) {
     throw new AppError({ statusCode: StatusCode.BAD_REQUEST, message: 'Please enter all fields' });
@@ -49,23 +59,38 @@ export const logInUser = asyncHandler(async (req: Request, res: Response) => {
 
   const user = await UserModel.findOne({ email }).select('+password').exec();
 
-  if (!user) throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: `invalid email or password` });
+  if (!user) throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: `Invalid email or password` });
 
   const isMatched = await user.comparePassword(password);
 
-  if (!isMatched) throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: 'invalid email or password' });
+  if (!isMatched) throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: 'Invalid email or password' });
 
-  // create jwt token here
+  // create access token
+  const accessToken = jwtHelper.encode({ userId: user._id }, Environment.ACCESS_JWT_SECRET, Environment.ACCESS_JWT_EXPIRY);
+  // create refresh token
+  const refreshToken = jwtHelper.encode({ userId: user._id }, Environment.REFRESH_JWT_SECRET, Environment.REFRESH_JWT_EXPIRY);
 
   const { password: userPass, ...rest } = user.toObject();
 
-  req.session.userId = user._id;
-
-  res.status(StatusCode.OK).json({ success: true, data: { ...rest, token: '' } });
+  res
+    .status(StatusCode.OK)
+    .cookie(Environment.COOKIE_NAME, refreshToken, {
+      maxAge: Environment.REFRESH_TOKEN_COOKIE_EXPIRY,
+      httpOnly: Environment.IS_PROD,
+      path: '/',
+    })
+    .json({ success: true, data: { ...rest, accessToken } });
 });
 
-export const refreshToken = asyncHandler((req: Request, res: Response) => {});
+/**
+ * @description generating the new access token
+ */
+export const refreshToken = asyncHandler((req: Request, res: Response) => {
+  console.log('here req goes', req.cookies);
+});
 
-export const me = asyncHandler((_req: Request, _res: Response) => {
-  // const user = await UserModel;
+export const me = asyncHandler((req: Request, res: Response) => {
+  if (!!req.user) {
+    res.status(StatusCode.OK).json({ success: true, data: req.user });
+  }
 });
