@@ -7,6 +7,7 @@ import { errorHandler } from './utils/errorHandler';
 import { logger } from './utils/logger';
 import cors from 'cors';
 import router from './routes/index.route';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(
   }),
 );
 app.use(helmet());
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
