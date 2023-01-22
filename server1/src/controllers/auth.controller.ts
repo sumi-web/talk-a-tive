@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { Environment } from '../config/environment';
 import { asyncHandler } from '../middleware/async.middleware';
 import { UserModel } from '../models/user.model';
+import { LoginUserInput, RegisterUserInput } from '../schema/user.schema';
 import { AppError, StatusCode } from '../utils/appError';
 import jwtHelper, { JwtPayloadData } from '../utils/jwt';
 import { removeFile } from '../utils/removeFile';
 import { revokeRefreshToken } from '../utils/revokeToken';
 
 /* Creating user */
-export const registerUser = asyncHandler(async (req: Request, res: Response) => {
+export const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterUserInput['body']>, res: Response) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password || !req.file) {
@@ -52,7 +53,7 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
 });
 
 /* Logging In */
-export const logInUser = asyncHandler(async (req: Request, res: Response) => {
+export const logInUser = asyncHandler(async (req: Request<{}, {}, LoginUserInput['body']>, res: Response) => {
   const { email, password } = req.body;
 
   if (!password || !email) {
@@ -89,8 +90,6 @@ export const logInUser = asyncHandler(async (req: Request, res: Response) => {
  * @description getting my details
  */
 export const me = asyncHandler((req: Request, res: Response) => {
-  console.log('req', req.headers);
-
   if (!!req.user) {
     res.status(StatusCode.OK).json({ success: true, data: req.user });
   }

@@ -28,7 +28,7 @@ app.use(apiRules);
 /** Configuring Session */
 // app.use(configureSession());
 
-/** configuring index routes */
+/** configuring all routes */
 app.use('/api/v1', router);
 
 /** HealthCheck */
