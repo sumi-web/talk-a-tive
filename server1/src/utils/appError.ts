@@ -23,7 +23,7 @@ export const StatusCode = {
 
 type keys = keyof typeof StatusCode;
 
-type StatusCodeType = typeof StatusCode[keys]; // get values
+type StatusCodeType = (typeof StatusCode)[keys]; // get values
 
 interface AppErrorArgs {
   name?: string;

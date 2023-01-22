@@ -1,21 +1,8 @@
-import {
-  VStack,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Button,
-  useToast,
-  Flex,
-  Divider,
-  Box,
-  Text,
-} from "@chakra-ui/react";
-import axios from "axios";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useState } from "react";
+import { VStack, FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, useToast, Flex, Divider, Box, Text } from '@chakra-ui/react';
+import axios from 'axios';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 const Signup = () => {
   const router = useRouter();
@@ -23,10 +10,10 @@ const Signup = () => {
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
   const toast = useToast();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [confirmpassword, setConfirmpassword] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [confirmpassword, setConfirmpassword] = useState('');
+  const [password, setPassword] = useState('');
   const [pic, setPic] = useState<FileList | null>(null);
   const [picLoading, setPicLoading] = useState(false);
 
@@ -34,11 +21,11 @@ const Signup = () => {
     setPicLoading(true);
     if (!name || !email || !password || !confirmpassword) {
       toast({
-        title: "Please Fill all the Feilds",
-        status: "warning",
+        title: 'Please Fill all the Feilds',
+        status: 'warning',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
 
       setPicLoading(false);
@@ -46,11 +33,11 @@ const Signup = () => {
     }
     if (password !== confirmpassword) {
       toast({
-        title: "Passwords Do Not Match",
-        status: "warning",
+        title: 'Passwords Do Not Match',
+        status: 'warning',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
       return;
     }
@@ -58,11 +45,11 @@ const Signup = () => {
     try {
       const config = {
         headers: {
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
         },
       };
       const { data } = await axios.post(
-        "/api/user",
+        '/api/user',
         {
           name,
           email,
@@ -73,23 +60,23 @@ const Signup = () => {
       );
       console.log(data);
       toast({
-        title: "Registration Successful",
-        status: "success",
+        title: 'Registration Successful',
+        status: 'success',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
-      localStorage.setItem("userInfo", JSON.stringify(data));
+      localStorage.setItem('userInfo', JSON.stringify(data));
       setPicLoading(false);
-      router.push("/chats");
+      router.push('/chats');
     } catch (error: any) {
       toast({
-        title: "Error Occured!",
+        title: 'Error Occured!',
         description: error.response.data.message,
-        status: "error",
+        status: 'error',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
       setPicLoading(false);
     }
@@ -99,22 +86,22 @@ const Signup = () => {
     setPicLoading(true);
     if (pics === undefined || pics === null) {
       toast({
-        title: "Please Select an Image!",
-        status: "warning",
+        title: 'Please Select an Image!',
+        status: 'warning',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
       return;
     }
     console.log(pics);
-    if (pics.type === "image/jpeg" || pics.type === "image/png") {
+    if (pics.type === 'image/jpeg' || pics.type === 'image/png') {
       const data = new FormData();
-      data.append("file", pics);
-      data.append("upload_preset", "chat-app");
-      data.append("cloud_name", "piyushproj");
-      fetch("https://api.cloudinary.com/v1_1/piyushproj/image/upload", {
-        method: "post",
+      data.append('file', pics);
+      data.append('upload_preset', 'chat-app');
+      data.append('cloud_name', 'piyushproj');
+      fetch('https://api.cloudinary.com/v1_1/piyushproj/image/upload', {
+        method: 'post',
         body: data,
       })
         .then((res) => res.json())
@@ -129,11 +116,11 @@ const Signup = () => {
         });
     } else {
       toast({
-        title: "Please Select an Image!",
-        status: "warning",
+        title: 'Please Select an Image!',
+        status: 'warning',
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: 'bottom',
       });
       setPicLoading(false);
       return;
@@ -154,14 +141,10 @@ const Signup = () => {
         <FormControl id="password" isRequired>
           <FormLabel>Password</FormLabel>
           <InputGroup size="md">
-            <Input
-              type={show ? "text" : "password"}
-              placeholder="Enter Password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Input type={show ? 'text' : 'password'} placeholder="Enter Password" onChange={(e) => setPassword(e.target.value)} />
             <InputRightElement width="4.5rem">
               <Button h="1.75rem" size="sm" onClick={handleClick}>
-                {show ? "Hide" : "Show"}
+                {show ? 'Hide' : 'Show'}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -169,14 +152,10 @@ const Signup = () => {
         <FormControl id="password" isRequired>
           <FormLabel>Confirm Password</FormLabel>
           <InputGroup size="md">
-            <Input
-              type={show ? "text" : "password"}
-              placeholder="Confirm password"
-              onChange={(e) => setConfirmpassword(e.target.value)}
-            />
+            <Input type={show ? 'text' : 'password'} placeholder="Confirm password" onChange={(e) => setConfirmpassword(e.target.value)} />
             <InputRightElement width="4.5rem">
               <Button h="1.75rem" size="sm" onClick={handleClick}>
-                {show ? "Hide" : "Show"}
+                {show ? 'Hide' : 'Show'}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -185,33 +164,19 @@ const Signup = () => {
           <FormLabel>Upload your Picture</FormLabel>
           <Input type="file" p={1.5} accept="image/*" onChange={(e) => postDetails(e.target.files[0])} />
         </FormControl>
-        <Button
-          colorScheme="blue"
-          width="100%"
-          style={{ marginTop: 15 }}
-          onClick={submitHandler}
-          isLoading={picLoading}
-        >
+        <Button colorScheme="blue" width="100%" style={{ marginTop: 15 }} onClick={submitHandler} isLoading={picLoading}>
           Sign Up
         </Button>
       </VStack>
-      <Box width={"100%"} mt="20px" mb="30px" position={"relative"}>
+      <Box width={'100%'} mt="20px" mb="30px" position={'relative'}>
         <Divider />
-        <Text
-          as={"span"}
-          background="white"
-          position="absolute"
-          left={"50%"}
-          top="50%"
-          px={"20px"}
-          transform={"translate(-50%, -50%)"}
-        >
+        <Text as={'span'} background="white" position="absolute" left={'50%'} top="50%" px={'20px'} transform={'translate(-50%, -50%)'}>
           or
         </Text>
       </Box>
-      <Flex justifyContent={"center"} gap="3rem">
-        <Image src={"/icons/chrome.png"} width={30} height={30} alt={""} />
-        <Image src={"/icons/facebook.png"} width={30} height={30} alt={""} />
+      <Flex justifyContent={'center'} gap="3rem">
+        <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
+        <Image src={'/icons/facebook.png'} width={30} height={30} alt={''} />
       </Flex>
     </>
   );

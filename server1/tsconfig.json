@@ -23,6 +23,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
+    "allowJs": true,
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "exclude": ["node_modules"],

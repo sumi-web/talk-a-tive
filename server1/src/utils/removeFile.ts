@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { logger } from './logger';
+import logger from './logger';
 
 /**
  * @param path file location

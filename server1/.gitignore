@@ -4,3 +4,6 @@
 .env
 /yarn-error.log
 /dist
+/.yarn
+.pnp.cjs
+.pnp.loader.mjs

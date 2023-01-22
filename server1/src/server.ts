@@ -3,8 +3,8 @@ import { Server } from 'http';
 import app from './app';
 import { connectDatabase } from './config/db';
 import { Environment } from './config/environment';
-import { logger } from './utils/logger';
 import { setLogLevel } from '@typegoose/typegoose';
+import logger from './utils/logger';
 
 dotenv.config();
 setLogLevel('DEBUG');
@@ -22,7 +22,7 @@ let httpServer: Server;
 connectDatabase()
   .then(() => {
     app.listen(Environment.SERVER_PORT, () => {
-      logger.success(`db is connected and express server listening on port ${Environment.SERVER_PORT}`);
+      logger.info(`db is connected and express server listening on port ${Environment.SERVER_PORT}`);
     });
   })
   .catch((err) => {

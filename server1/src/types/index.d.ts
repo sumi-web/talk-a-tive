@@ -1,4 +1,5 @@
 import session from 'express-session';
+import { Types } from 'mongoose';
 import { User } from '../models/user.model';
 
 export type ExcludeMethods<T> = Pick<T, { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]>;
@@ -13,7 +14,7 @@ declare global {
   namespace Express {
     interface Request {
       cookies: { token?: string };
-      user: ExcludeMethods<User> | null;
+      user: ExcludeMethods<User> & { _id: Types.ObjectId };
     }
   }
 }

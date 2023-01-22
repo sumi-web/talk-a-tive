@@ -1,11 +1,13 @@
 import { DocumentType, getModelForClass, index, pre, prop } from '@typegoose/typegoose';
 import argon2 from 'argon2';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 
-export enum UserRole {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
+export const AuthRoles = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+
+export type AuthRolesType = keyof typeof AuthRoles;
 
 @pre<User>('save', async function (next) {
   if (!this.isModified('password')) {
@@ -31,8 +33,11 @@ export class User {
   @prop({ required: true, default: false })
   public isAdmin!: boolean;
 
-  @prop({ required: true, type: String, enum: UserRole, default: UserRole.USER })
-  public role!: UserRole;
+  @prop({ required: true, type: String, enum: AuthRoles, default: AuthRoles.USER })
+  public role!: AuthRolesType;
+
+  @prop({ required: true, default: 0 })
+  tokenVersion!: number;
 
   public async comparePassword(this: DocumentType<User>, password: string) {
     try {
