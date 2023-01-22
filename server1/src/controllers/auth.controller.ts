@@ -168,4 +168,4 @@ export const revokeUserAccess = asyncHandler(async (req: Request, res: Response)
 // change pass
 // reset-pass
 // update user data
-//
+// delete user

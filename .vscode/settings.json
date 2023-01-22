@@ -3,5 +3,7 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
-  "editor.wordWrap": "on"
+  "editor.wordWrap": "on",
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true
 }
