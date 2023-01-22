@@ -4,10 +4,10 @@ import { asyncHandler } from './middleware/async.middleware';
 import { requestLogger } from './middleware/request.middleware';
 import { apiRules } from './middleware/rules.middleware';
 import { errorHandler } from './utils/errorHandler';
-import { logger } from './utils/logger';
 import cors from 'cors';
 import router from './routes/index.route';
 import cookieParser from 'cookie-parser';
+import logger from './utils/logger';
 
 const app = express();
 

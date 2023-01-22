@@ -1,6 +1,6 @@
 import { DocumentType, getModelForClass, index, pre, prop } from '@typegoose/typegoose';
 import argon2 from 'argon2';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 
 export const AuthRoles = {
   USER: 'USER',

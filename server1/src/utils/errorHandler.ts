@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { errorMiddleWare } from '../middleware/error.middleware';
 import { AppError, StatusCode } from './appError';
-import { logger } from './logger';
+import logger from './logger';
 
 // distinguishing between trusted error or critical error
 class ErrorHandler {
