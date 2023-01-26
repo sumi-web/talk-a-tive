@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Environment } from '../config/environment';
 import { asyncHandler } from '../middleware/async.middleware';
 import { UserModel } from '../models/user.model';
-import { LoginUserInput, RegisterUserInput } from '../schema/user.schema';
+import { LoginUserInput, RegisterUserInput, RevokeUserAccessParamType } from '../schema/user.schema';
 import { AppError, StatusCode } from '../utils/appError';
 import jwtHelper, { JwtPayloadData } from '../utils/jwt';
 import { removeFile } from '../utils/removeFile';
@@ -121,7 +121,6 @@ export const createAccessToken = asyncHandler(async (req: Request, res: Response
   }
 
   // if version does not match, coming token is revoked
-
   if (user.tokenVersion !== isRefreshTokenVerified?.version) {
     throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: 'Refresh token is revoked' });
   }
@@ -152,7 +151,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
  * Only Admin can access
  * @description revoking the user access
  */
-export const revokeUserAccess = asyncHandler(async (req: Request, res: Response) => {
+export const revokeUserAccess = asyncHandler(async (req: Request<RevokeUserAccessParamType['params']>, res: Response) => {
   const { userId } = req.params;
 
   const isUpdated = await revokeRefreshToken(userId);

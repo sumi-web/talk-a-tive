@@ -23,3 +23,13 @@ export const loginUserSchema = z.object({
 });
 
 export type LoginUserInput = z.infer<typeof loginUserSchema>;
+
+export const RevokeUserAccessSchema = z.object({
+  params: z.object({
+    userId: z.string({
+      required_error: 'userId is required',
+    }),
+  }),
+});
+
+export type RevokeUserAccessParamType = z.infer<typeof RevokeUserAccessSchema>;

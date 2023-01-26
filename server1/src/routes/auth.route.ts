@@ -3,7 +3,7 @@ import { logInUser, me, createAccessToken, registerUser, logout, revokeUserAcces
 import { isAuthenticated } from '../middleware/auth.middleware';
 import { upload } from '../middleware/multer.middleware';
 import { validate } from '../middleware/validate.middleware';
-import { loginUserSchema, registerUserSchema } from '../schema/user.schema';
+import { loginUserSchema, registerUserSchema, RevokeUserAccessSchema } from '../schema/user.schema';
 
 const authRouter = express.Router();
 
@@ -13,6 +13,6 @@ authRouter.post('/login', validate(loginUserSchema), logInUser);
 authRouter.post('/refresh-token', createAccessToken);
 authRouter.get('/logout', isAuthenticated, logout);
 // Admin Routes
-authRouter.get('/admin/user/revoke-token/:userId', revokeUserAccess);
+authRouter.get('/admin/user/revoke-token/:userId', validate(RevokeUserAccessSchema), revokeUserAccess);
 
 export default authRouter;
