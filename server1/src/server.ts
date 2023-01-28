@@ -1,12 +1,10 @@
-import dotenv from 'dotenv';
 import { Server } from 'http';
 import app from './app';
-import { connectDatabase } from './config/db';
 import { Environment } from './config/environment';
 import { setLogLevel } from '@typegoose/typegoose';
 import logger from './utils/logger';
+import { connectDatabase } from './config/db';
 
-dotenv.config();
 setLogLevel('DEBUG');
 
 // handling uncaught exception -- this should be on top to catch all undefined variables errors

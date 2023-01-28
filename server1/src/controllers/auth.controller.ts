@@ -1,12 +1,18 @@
 import { Request, Response } from 'express';
+import qs from 'qs';
 import { Environment } from '../config/environment';
 import { asyncHandler } from '../middleware/async.middleware';
-import { UserModel } from '../models/user.model';
+import { User, UserModel } from '../models/user.model';
 import { LoginUserInput, RegisterUserInput, RevokeUserAccessParamType } from '../schema/user.schema';
+import { GoogleTokensResult, GoogleUserInfo } from '../types/types';
 import { AppError, StatusCode } from '../utils/appError';
 import jwtHelper, { JwtPayloadData } from '../utils/jwt';
+import logger from '../utils/logger';
 import { removeFile } from '../utils/removeFile';
 import { revokeRefreshToken } from '../utils/revokeToken';
+import jwt from 'jsonwebtoken';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
+import { ExternalProviderModel } from '../models/externalProvider.model';
 
 /* Creating user */
 export const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterUserInput['body']>, res: Response) => {
@@ -160,8 +166,100 @@ export const revokeUserAccess = asyncHandler(async (req: Request<RevokeUserAcces
     throw new AppError({ statusCode: StatusCode.NOT_FOUND, message: `User does not exist with given id ${userId}` });
   }
 
-  res.status(StatusCode.OK).json({ success: true });
+  res.status(StatusCode.OK).json({ success: true, message: 'revoked successfully' });
 });
+
+/** manage oAuth by google */
+
+export const googleOAuthHandler = asyncHandler(async (req: Request, response: Response) => {
+  // get the code from query string
+  const code = req.query.code as string;
+
+  const url = 'https://oauth2.googleapis.com/token';
+
+  const values = {
+    code,
+    client_id: Environment.GOOGLE_CLIENT_ID,
+    client_secret: Environment.GOOGLE_CLIENT_SECRET,
+    redirect_uri: Environment.GOOGLE_AUTH_REDIRECT_URL,
+    grant_type: 'authorization_code',
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: qs.stringify(values),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const result: GoogleTokensResult = await res.json();
+
+    if (result) {
+      // get the id and access token with the code
+      const { access_token, refresh_token, id_token } = result;
+
+      // get user with tokens
+      // const userDetails = jwt.decode(id_token);  this is also good approach, we can get user details from id_token which is base64
+
+      const userInfo = await getGoogleUser(access_token);
+
+      if (!userInfo.verified_email) {
+        throw new AppError({ statusCode: StatusCode.FORBIDDEN, message: 'Google account is not verified' });
+      }
+
+      // upsert the use
+
+      const externalProvider = await ExternalProviderModel.create({
+        providerName: 'GOOGLE',
+      });
+
+      const user = await findAndUpdateUser(
+        { email: userInfo.email },
+        { email: userInfo.email, name: userInfo.name, image: userInfo.picture, externalProvider: externalProvider._id },
+        { upsert: true, new: true },
+      );
+
+      // create access & refresh token /api/v1/auth/session/oauth/google?
+
+      // set cookies
+
+      // redirect back to client
+
+      response.status(StatusCode.OK).json({ success: true, data: user });
+    }
+
+    console.log('res', result);
+  } catch (err) {
+    logger.error(err);
+    return response.redirect('https://localhost:3000/oauth/error');
+  }
+
+  // get id and access token with code => get google user with tokens => upsert user => create session and tokens => set cookies => redirect back to client
+});
+
+export const getGoogleUser = async (accessToken: string): Promise<GoogleUserInfo> => {
+  const url = 'https://www.googleapis.com/oauth2/v2/userinfo';
+
+  try {
+    const res = await fetch(`${url}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const result = await res.json();
+    return result;
+  } catch (err: any) {
+    logger.error(err);
+    throw new Error(err.message);
+  }
+};
+
+export const findAndUpdateUser = async (filter: FilterQuery<User>, update: UpdateQuery<User>, options: QueryOptions = {}) => {
+  return UserModel.findOneAndUpdate(filter, update, options);
+};
 
 // change pass
 // reset-pass
