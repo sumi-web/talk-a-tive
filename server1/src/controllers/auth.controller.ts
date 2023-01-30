@@ -10,15 +10,15 @@ import jwtHelper, { JwtPayloadData } from '../utils/jwt';
 import logger from '../utils/logger';
 import { removeFile } from '../utils/removeFile';
 import { revokeRefreshToken } from '../utils/revokeToken';
-import jwt from 'jsonwebtoken';
+import argon2 from 'argon2';
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
-import { ExternalProviderModel } from '../models/externalProvider.model';
+import { ExternalProviderModel, ProviderName } from '../models/externalProvider.model';
 
 /* Creating user */
 export const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterUserInput['body']>, res: Response) => {
   const { name, email, password } = req.body;
 
-  if (!name || !email || !password || !req.file) {
+  if (!name || !email || !req.file) {
     if (req.file) removeFile(req.file.path);
 
     throw new AppError({ message: 'Please enter all the fields', statusCode: StatusCode.BAD_REQUEST });
@@ -69,6 +69,10 @@ export const logInUser = asyncHandler(async (req: Request<{}, {}, LoginUserInput
   const user = await UserModel.findOne({ email }).select('+password').exec();
 
   if (!user) throw new AppError({ statusCode: StatusCode.UNAUTHORIZED, message: `Invalid email or password` });
+
+  if (user.externalProvider) {
+    res.status(StatusCode.BAD_REQUEST).json({ success: false, message: `Please sign in using below external services` });
+  }
 
   const isMatched = await user.comparePassword(password);
 
@@ -169,7 +173,7 @@ export const revokeUserAccess = asyncHandler(async (req: Request<RevokeUserAcces
   res.status(StatusCode.OK).json({ success: true, message: 'revoked successfully' });
 });
 
-/** manage oAuth by google */
+/** @description manage oAuth by google */
 
 export const googleOAuthHandler = asyncHandler(async (req: Request, response: Response) => {
   // get the code from query string
@@ -198,7 +202,7 @@ export const googleOAuthHandler = asyncHandler(async (req: Request, response: Re
 
     if (result) {
       // get the id and access token with the code
-      const { access_token, refresh_token, id_token } = result;
+      const { access_token } = result;
 
       // get user with tokens
       // const userDetails = jwt.decode(id_token);  this is also good approach, we can get user details from id_token which is base64
@@ -209,28 +213,44 @@ export const googleOAuthHandler = asyncHandler(async (req: Request, response: Re
         throw new AppError({ statusCode: StatusCode.FORBIDDEN, message: 'Google account is not verified' });
       }
 
-      // upsert the use
+      // upsert the user
+      const externalProvider = await ExternalProviderModel.findOneAndUpdate(
+        { providerToken: userInfo.id },
+        {
+          providerName: ProviderName.GOOGLE,
+          providerToken: userInfo.id,
+        },
+        { upsert: true, new: true, runValidators: true },
+      );
 
-      const externalProvider = await ExternalProviderModel.create({
-        providerName: 'GOOGLE',
-      });
+      const hashedPassword = await argon2.hash('___no_use___');
 
       const user = await findAndUpdateUser(
         { email: userInfo.email },
-        { email: userInfo.email, name: userInfo.name, image: userInfo.picture, externalProvider: externalProvider._id },
-        { upsert: true, new: true },
+        { email: userInfo.email, name: userInfo.name, image: userInfo.picture, externalProvider: externalProvider._id, password: hashedPassword },
+        { upsert: true, new: true, runValidators: true },
       );
 
-      // create access & refresh token /api/v1/auth/session/oauth/google?
+      // create access & refresh token
+      if (!user) {
+        throw new AppError({ statusCode: StatusCode.INTERNAL_SERVER_ERROR, message: 'Something went wrong' });
+      }
 
-      // set cookies
+      const accessToken = jwtHelper.encodeAccessToken({ userId: user._id });
+      const refreshToken = jwtHelper.encodeRefreshToken({ userId: user._id, version: 0 });
 
-      // redirect back to client
-
-      response.status(StatusCode.OK).json({ success: true, data: user });
+      //set cookies and redirect back to client
+      return response
+        .status(StatusCode.OK)
+        .cookie(Environment.COOKIE_NAME, refreshToken, {
+          maxAge: Environment.REFRESH_TOKEN_COOKIE_EXPIRY,
+          httpOnly: Environment.IS_PROD,
+          secure: Environment.IS_PROD,
+          path: Environment.JWT_COOKIE_PATH,
+        })
+        .json({ success: true, data: { accessToken, ...user.toObject() } });
     }
-
-    console.log('res', result);
+    throw new AppError({ statusCode: StatusCode.INTERNAL_SERVER_ERROR, message: 'Something went wrong' });
   } catch (err) {
     logger.error(err);
     return response.redirect('https://localhost:3000/oauth/error');

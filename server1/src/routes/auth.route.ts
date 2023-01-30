@@ -12,7 +12,10 @@ authRouter.get('/me', isAuthenticated, me);
 authRouter.post('/login', validate(loginUserSchema), logInUser);
 authRouter.post('/refresh-token', createAccessToken);
 authRouter.get('/logout', isAuthenticated, logout);
-authRouter.get('/session/oauth/google', googleOAuthHandler);
+// oauth redirects url
+authRouter.get('/oauth/google', googleOAuthHandler);
+authRouter.get('/oauth/facebook', googleOAuthHandler);
+
 // Admin Routes
 authRouter.get('/admin/user/revoke-token/:userId', validate(RevokeUserAccessSchema), revokeUserAccess);
 
