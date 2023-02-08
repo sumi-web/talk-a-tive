@@ -259,6 +259,7 @@ export const googleOAuthHandler = asyncHandler(async (req: Request, response: Re
   // get id and access token with code => get google user with tokens => upsert user => create session and tokens => set cookies => redirect back to client
 });
 
+/** @description fetching user info using google's accessToken */
 export const getGoogleUser = async (accessToken: string): Promise<GoogleUserInfo> => {
   const url = 'https://www.googleapis.com/oauth2/v2/userinfo';
 
@@ -277,7 +278,85 @@ export const getGoogleUser = async (accessToken: string): Promise<GoogleUserInfo
   }
 };
 
-export const findAndUpdateUser = async (filter: FilterQuery<User>, update: UpdateQuery<User>, options: QueryOptions = {}) => {
+export const facebookOAuthHandler = asyncHandler(async (req: Request, res: Response) => {
+  console.log('req va', req.query);
+  console.log('req param', req.params);
+  const { code } = req.query;
+  const result = await exchangeAccessTokenForCode(code as string);
+
+  const getMeUrl = 'https://graph.facebook.com/me';
+
+  try {
+    const response = await fetch(`${getMeUrl}?access_token=${result.access_token}`);
+
+    const myInfo = await response.json();
+
+    // upsert the user
+    const externalProvider = await ExternalProviderModel.findOneAndUpdate(
+      { providerToken: 'unique' },
+      {
+        providerName: ProviderName.GOOGLE,
+        providerToken: 'unique',
+      },
+      { upsert: true, new: true, runValidators: true },
+    );
+
+    const hashedPassword = await argon2.hash('___no_use___');
+
+    const user = await findAndUpdateUser(
+      { email: 'sumit26star@gmail.com' },
+      {
+        email: 'sumit26star@gmail.com',
+        name: myInfo.name,
+        image: '',
+        externalProvider: externalProvider._id,
+        password: hashedPassword,
+      },
+      { upsert: true, new: true, runValidators: true },
+    );
+
+    if (!user) {
+      throw new AppError({ statusCode: StatusCode.INTERNAL_SERVER_ERROR, message: 'Something went wrong' });
+    }
+
+    const accessToken = jwtHelper.encodeAccessToken({ userId: user._id });
+    const refreshToken = jwtHelper.encodeRefreshToken({ userId: user._id, version: 0 });
+
+    return res
+      .status(StatusCode.OK)
+      .cookie(Environment.COOKIE_NAME, refreshToken, {
+        maxAge: Environment.REFRESH_TOKEN_COOKIE_EXPIRY,
+        httpOnly: Environment.IS_PROD,
+        secure: Environment.IS_PROD,
+        path: Environment.JWT_COOKIE_PATH,
+      })
+      .json({ success: true, data: { accessToken, ...user.toObject() } });
+  } catch (err: any) {
+    throw new Error(err);
+  }
+});
+
+export const exchangeAccessTokenForCode = async (code: string) => {
+  const url = 'https://graph.facebook.com/v16.0/oauth/access_token';
+
+  const values = {
+    client_id: Environment.FACEBOOK_CLIENT_ID,
+    redirect_uri: Environment.FACEBOOK_AUTH_REDIRECT_URL,
+    client_secret: Environment.FACEBOOK_SECRET,
+    code,
+  };
+
+  try {
+    const res = await fetch(`${url}?${qs.stringify(values)}`);
+
+    return await res.json();
+  } catch (err: any) {
+    logger.error(err);
+    throw new Error(err.message);
+  }
+};
+
+const findAndUpdateUser = async (filter: FilterQuery<User>, update: UpdateQuery<User>, options: QueryOptions = {}) => {
   return UserModel.findOneAndUpdate(filter, update, options);
 };
 

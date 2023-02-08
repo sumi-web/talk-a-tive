@@ -3,7 +3,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { getGoogleOAuthURL } from '../../utils/constant';
+import { getFacebookOAuthURL, getGoogleOAuthURL } from '../../utils/constant';
 
 const Login = () => {
   const router = useRouter();
@@ -108,7 +108,7 @@ const Login = () => {
             <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
           </Box>
         </a>
-        <a href="">
+        <a href={getFacebookOAuthURL()}>
           <Box cursor={'pointer'}>
             <Image src={'/icons/facebook.png'} width={30} height={30} alt={''} />
           </Box>

@@ -1,5 +1,14 @@
 import express from 'express';
-import { logInUser, me, createAccessToken, registerUser, logout, revokeUserAccess, googleOAuthHandler } from '../controllers/auth.controller';
+import {
+  logInUser,
+  me,
+  createAccessToken,
+  registerUser,
+  logout,
+  revokeUserAccess,
+  googleOAuthHandler,
+  facebookOAuthHandler,
+} from '../controllers/auth.controller';
 import { isAuthenticated } from '../middleware/auth.middleware';
 import { upload } from '../middleware/multer.middleware';
 import { validate } from '../middleware/validate.middleware';
@@ -14,7 +23,7 @@ authRouter.post('/refresh-token', createAccessToken);
 authRouter.get('/logout', isAuthenticated, logout);
 // oauth redirects url
 authRouter.get('/oauth/google', googleOAuthHandler);
-authRouter.get('/oauth/facebook', googleOAuthHandler);
+authRouter.get('/oauth/facebook', facebookOAuthHandler);
 
 // Admin Routes
 authRouter.get('/admin/user/revoke-token/:userId', validate(RevokeUserAccessSchema), revokeUserAccess);

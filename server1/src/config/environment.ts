@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import logger from '../utils/logger';
+dotenv.config({ path: path.join(__dirname, `../../.env.${process.env.NODE_ENV}`) });
+
+logger.info(`env location ${path.join(__dirname, `../../.env.${process.env.NODE_ENV}`)}`);
 
 const MONGO_USERNAME = process.env.MONGO_USERNAME;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
@@ -22,4 +26,7 @@ export class Environment {
   public static readonly GOOGLE_AUTH_REDIRECT_URL = process.env.GOOGLE_AUTH_REDIRECT_URL || '';
   public static readonly GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
   public static readonly GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+  public static readonly FACEBOOK_CLIENT_ID = process.env.FACEBOOK_APP_ID || '';
+  public static readonly FACEBOOK_SECRET = process.env.FACEBOOK_SECRET || '';
+  public static readonly FACEBOOK_AUTH_REDIRECT_URL = process.env.FACEBOOK_AUTH_REDIRECT_URL || '';
 }

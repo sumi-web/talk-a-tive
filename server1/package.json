@@ -5,9 +5,9 @@
   "license": "MIT",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon",
+    "dev": "NODE_ENV=development nodemon",
     "dev2": "node --trace-warnings --watch dist/server.js",
-    "start": "node dist/server.js",
+    "start": "NODE_ENV=production node dist/server.js",
     "build": "rm -rf dist/ && tsc && yarn postbuild",
     "test": "jest",
     "postbuild": "cpy '**/*' '!**/*.ts' ../lib/ --cwd=src/ --no-overwrite --parent"
