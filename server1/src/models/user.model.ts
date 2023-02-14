@@ -1,6 +1,7 @@
-import { DocumentType, getModelForClass, index, pre, prop } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, index, pre, prop, Ref } from '@typegoose/typegoose';
 import argon2 from 'argon2';
 import logger from '../utils/logger';
+import { ExternalProvider } from './externalProvider.model';
 
 export const AuthRoles = {
   USER: 'USER',
@@ -21,13 +22,13 @@ export class User {
   @prop({ required: true, minlength: 2, maxlength: 20 })
   public name!: string;
 
-  @prop({ required: true, match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'], maxlength: 20 })
+  @prop({ required: true, match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'], maxlength: 50 })
   public email!: string;
 
-  @prop({ required: true, minlength: 6, maxlength: 20, select: false })
+  @prop({ required: true, minlength: 6, select: false })
   public password!: string;
 
-  @prop({ required: true })
+  @prop({ default: '' })
   public image!: string;
 
   @prop({ required: true, default: false })
@@ -37,7 +38,16 @@ export class User {
   public role!: AuthRolesType;
 
   @prop({ required: true, default: 0 })
-  tokenVersion!: number;
+  public tokenVersion!: number;
+
+  @prop({ ref: () => ExternalProvider })
+  public externalProvider?: Ref<ExternalProvider>;
+
+  @prop()
+  public passwordRecoveryToken?: string;
+
+  @prop()
+  public recoveryTokenTime?: string;
 
   public async comparePassword(this: DocumentType<User>, password: string) {
     try {

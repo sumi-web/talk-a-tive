@@ -3,6 +3,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { getGoogleOAuthURL } from '../../utils/constant';
 
 const Signup = () => {
   const router = useRouter();
@@ -175,7 +176,11 @@ const Signup = () => {
         </Text>
       </Box>
       <Flex justifyContent={'center'} gap="3rem">
-        <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
+        <a href={getGoogleOAuthURL()}>
+          <Box cursor={'pointer'}>
+            <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
+          </Box>
+        </a>
         <Image src={'/icons/facebook.png'} width={30} height={30} alt={''} />
       </Flex>
     </>

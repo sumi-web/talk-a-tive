@@ -1,3 +1,10 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import logger from '../utils/logger';
+dotenv.config({ path: path.join(__dirname, `../../.env.${process.env.NODE_ENV}`) });
+
+logger.info(`env location ${path.join(__dirname, `../../.env.${process.env.NODE_ENV}`)}`);
+
 const MONGO_USERNAME = process.env.MONGO_USERNAME;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
 
@@ -16,4 +23,10 @@ export class Environment {
   public static readonly REFRESH_JWT_EXPIRY: number | string = 60 * 10; // 5min
   public static readonly REFRESH_TOKEN_COOKIE_EXPIRY = 1000 * 60 * 5; //5 min
   public static readonly JWT_COOKIE_PATH = '/api/v1/auth/refresh-token';
+  public static readonly GOOGLE_AUTH_REDIRECT_URL = process.env.GOOGLE_AUTH_REDIRECT_URL || '';
+  public static readonly GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+  public static readonly GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+  public static readonly FACEBOOK_CLIENT_ID = process.env.FACEBOOK_APP_ID || '';
+  public static readonly FACEBOOK_SECRET = process.env.FACEBOOK_SECRET || '';
+  public static readonly FACEBOOK_AUTH_REDIRECT_URL = process.env.FACEBOOK_AUTH_REDIRECT_URL || '';
 }

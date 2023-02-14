@@ -3,6 +3,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { getFacebookOAuthURL, getGoogleOAuthURL } from '../../utils/constant';
 
 const Login = () => {
   const router = useRouter();
@@ -102,12 +103,16 @@ const Login = () => {
         </Text>
       </Box>
       <Flex justifyContent={'center'} gap="3rem">
-        <Box cursor={'pointer'}>
-          <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
-        </Box>
-        <Box cursor={'pointer'}>
-          <Image src={'/icons/facebook.png'} width={30} height={30} alt={''} />
-        </Box>
+        <a href={getGoogleOAuthURL()}>
+          <Box cursor={'pointer'}>
+            <Image src={'/icons/chrome.png'} width={30} height={30} alt={''} />
+          </Box>
+        </a>
+        <a href={getFacebookOAuthURL()}>
+          <Box cursor={'pointer'}>
+            <Image src={'/icons/facebook.png'} width={30} height={30} alt={''} />
+          </Box>
+        </a>
       </Flex>
     </>
   );
