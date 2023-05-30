@@ -1,11 +1,14 @@
+import { useRegister } from '@/lib/auth';
+import { getGoogleOAuthURL } from '@/utils/constant';
 import { VStack, FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, useToast, Flex, Divider, Box, Text } from '@chakra-ui/react';
 import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { getGoogleOAuthURL } from '../../utils/constant';
+import React, { useState } from 'react';
 
-const Signup = () => {
+const imageMimeType = /image\/(png|jpg|jpeg)/i;
+
+const Register = () => {
   const router = useRouter();
 
   const [show, setShow] = useState(false);
@@ -13,52 +16,56 @@ const Signup = () => {
   const toast = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [confirmpassword, setConfirmpassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [password, setPassword] = useState('');
-  const [pic, setPic] = useState<FileList | null>(null);
-  const [picLoading, setPicLoading] = useState(false);
+  const [image, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { mutate } = useRegister();
 
   const submitHandler = async () => {
-    setPicLoading(true);
-    if (!name || !email || !password || !confirmpassword) {
+    setIsLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
       toast({
         title: 'Please Fill all the Feilds',
         status: 'warning',
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
-        position: 'bottom',
+        position: 'top-right',
       });
 
-      setPicLoading(false);
+      setIsLoading(false);
       return;
     }
-    if (password !== confirmpassword) {
+    if (password !== confirmPassword) {
       toast({
         title: 'Passwords Do Not Match',
         status: 'warning',
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
-        position: 'bottom',
+        position: 'top-right',
       });
+      setIsLoading(false);
       return;
     }
-    console.log(name, email, password, pic);
+
+    if (!imagePreview || !image) {
+      toast({
+        title: 'Please select an image',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right',
+      });
+
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const config = {
-        headers: {
-          'Content-type': 'application/json',
-        },
-      };
-      const { data } = await axios.post(
-        '/api/user',
-        {
-          name,
-          email,
-          password,
-          pic,
-        },
-        config,
-      );
+      const data = mutate({ name, email, password, image });
+
       console.log(data);
       toast({
         title: 'Registration Successful',
@@ -68,7 +75,7 @@ const Signup = () => {
         position: 'bottom',
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
-      setPicLoading(false);
+      setIsLoading(false);
       router.push('/chats');
     } catch (error: any) {
       toast({
@@ -79,12 +86,59 @@ const Signup = () => {
         isClosable: true,
         position: 'bottom',
       });
-      setPicLoading(false);
+      setIsLoading(false);
+    }
+  };
+
+  const selectImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+
+    if (!files || !files.length) {
+      toast({
+        title: 'Please Select an Image!',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+        position: 'bottom',
+      });
+      setImagePreview('');
+      return;
+    }
+
+    const file = files[0];
+
+    if (!file.type.match(imageMimeType)) {
+      toast({
+        title: '!Image mime type is not valid',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+        position: 'bottom',
+      });
+      setImagePreview('');
+
+      return;
+    }
+
+    if (file) {
+      const fileReader = new FileReader();
+
+      fileReader.onload = (e: ProgressEvent<FileReader>) => {
+        const result = e.target?.result;
+
+        if (result) {
+          setImagePreview(result.toString());
+        }
+      };
+
+      setImageFile(files[0]);
+
+      fileReader.readAsDataURL(file);
     }
   };
 
   const postDetails = (pics: File | null) => {
-    setPicLoading(true);
+    setIsLoading(true);
     if (pics === undefined || pics === null) {
       toast({
         title: 'Please Select an Image!',
@@ -107,13 +161,13 @@ const Signup = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-          setPic(data.url.toString());
+          setImageFile(data.url.toString());
           console.log(data.url.toString());
-          setPicLoading(false);
+          setIsLoading(false);
         })
         .catch((err) => {
           console.log(err);
-          setPicLoading(false);
+          setIsLoading(false);
         });
     } else {
       toast({
@@ -123,7 +177,7 @@ const Signup = () => {
         isClosable: true,
         position: 'bottom',
       });
-      setPicLoading(false);
+      setIsLoading(false);
       return;
     }
   };
@@ -153,7 +207,7 @@ const Signup = () => {
         <FormControl id="password" isRequired>
           <FormLabel>Confirm Password</FormLabel>
           <InputGroup size="md">
-            <Input type={show ? 'text' : 'password'} placeholder="Confirm password" onChange={(e) => setConfirmpassword(e.target.value)} />
+            <Input type={show ? 'text' : 'password'} placeholder="Confirm password" onChange={(e) => setConfirmPassword(e.target.value)} />
             <InputRightElement width="4.5rem">
               <Button h="1.75rem" size="sm" onClick={handleClick}>
                 {show ? 'Hide' : 'Show'}
@@ -163,9 +217,23 @@ const Signup = () => {
         </FormControl>
         <FormControl id="pic">
           <FormLabel>Upload your Picture</FormLabel>
-          <Input type="file" p={1.5} accept="image/*" onChange={(e) => postDetails(e.target.files[0])} />
+          <Input type="file" p={1.5} accept="image/*" onChange={selectImage} />
         </FormControl>
-        <Button colorScheme="blue" width="100%" style={{ marginTop: 15 }} onClick={submitHandler} isLoading={picLoading}>
+        {imagePreview && (
+          <Box>
+            <Image src={imagePreview} width={100} height={100} alt="preview" />
+          </Box>
+        )}
+
+        <Button
+          colorScheme="blue"
+          width="100%"
+          style={{ marginTop: 15 }}
+          onClick={() => {
+            mutate({ name, password, email, image: image as File });
+          }}
+          isLoading={isLoading}
+        >
           Sign Up
         </Button>
       </VStack>
@@ -187,4 +255,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Register;

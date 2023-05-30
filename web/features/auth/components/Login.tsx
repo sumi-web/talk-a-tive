@@ -1,9 +1,9 @@
+import { getGoogleOAuthURL, getFacebookOAuthURL } from '@/utils/constant';
 import { VStack, FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, useToast, Box, Divider, Flex, Text } from '@chakra-ui/react';
 import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { getFacebookOAuthURL, getGoogleOAuthURL } from '../../utils/constant';
 
 const Login = () => {
   const router = useRouter();
@@ -39,7 +39,6 @@ const Login = () => {
 
       const { data } = await axios.post('/api/user/login', { email, password }, config);
 
-      // console.log(JSON.stringify(data));
       toast({
         title: 'Login Successful',
         status: 'success',

@@ -1,7 +1,8 @@
 import { Inter } from '@next/font/google';
 import { Box, Container, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
-import Login from '../components/auth/Login';
-import Signup from '../components/auth/Signup';
+import Login from '@/features/auth/components/Login';
+import Register from '@/features/auth/components/Register';
+import AuthLayout from '@/components/Layout/AuthLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,7 +25,7 @@ export default function Home() {
               <Login />
             </TabPanel>
             <TabPanel>
-              <Signup />
+              <Register />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -4,6 +4,7 @@ import { Environment } from './config/environment';
 import { setLogLevel } from '@typegoose/typegoose';
 import logger from './utils/logger';
 import { connectDatabase } from './config/db';
+import { startMetricServer } from './utils/metrics';
 
 setLogLevel('DEBUG');
 
@@ -19,6 +20,7 @@ let httpServer: Server;
 // only start the server when mongodb is connected
 connectDatabase()
   .then(() => {
+    startMetricServer();
     app.listen(Environment.SERVER_PORT, () => {
       logger.info(`db is connected and express server listening on port ${Environment.SERVER_PORT}`);
     });

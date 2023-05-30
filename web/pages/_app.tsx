@@ -3,10 +3,16 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
 import { theme } from '../utils/theme';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Hydrate, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 1000,
+    },
+  },
+});
 
 const ReactQueryDevtoolsProduction = React.lazy(() =>
   import('@tanstack/react-query-devtools/build/lib/index.prod.js').then((d) => ({
@@ -26,15 +32,17 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={theme}>
-        <Component {...pageProps} />
-        <ReactQueryDevtools initialIsOpen />
-        {showDevtools && (
-          <React.Suspense fallback={null}>
-            <ReactQueryDevtoolsProduction />
-          </React.Suspense>
-        )}
-      </ChakraProvider>
+      <Hydrate state={pageProps.dehydratedState}>
+        <ChakraProvider theme={theme}>
+          <Component {...pageProps} />
+          <ReactQueryDevtools initialIsOpen />
+          {showDevtools && (
+            <React.Suspense fallback={null}>
+              <ReactQueryDevtoolsProduction />
+            </React.Suspense>
+          )}
+        </ChakraProvider>
+      </Hydrate>
     </QueryClientProvider>
   );
 }

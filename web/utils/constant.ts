@@ -4,6 +4,7 @@ export const Constant = {
   googleOAuthRedirectUri: process.env.NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_URL || '',
   facebookAppId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
   facebookAuthRedirectUri: process.env.NEXT_PUBLIC_FACEBOOK_AUTH_REDIRECT_URL || '',
+  isProd: process.env.NODE_ENV === 'production',
 };
 
 export const getGoogleOAuthURL = () => {

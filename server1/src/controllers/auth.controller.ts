@@ -13,9 +13,16 @@ import { revokeRefreshToken } from '../utils/revokeToken';
 import argon2 from 'argon2';
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { ExternalProviderModel, ProviderName } from '../models/externalProvider.model';
+import { databaseResponseTimeHistogram } from '../utils/metrics';
 
 /* Creating user */
 export const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterUserInput['body']>, res: Response) => {
+  const metricsLabels = {
+    operation: 'createProduct',
+  };
+
+  const timer = databaseResponseTimeHistogram.startTimer();
+
   const { name, email, password } = req.body;
 
   if (!name || !email || !req.file) {
@@ -32,6 +39,8 @@ export const registerUser = asyncHandler(async (req: Request<{}, {}, RegisterUse
 
     throw new AppError({ message: `User already exist with email ${req.body.email}`, statusCode: StatusCode.BAD_REQUEST });
   }
+
+  timer({ ...metricsLabels, success: 'true' });
 
   const user = await UserModel.create({
     name,
