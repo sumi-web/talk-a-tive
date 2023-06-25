@@ -12,20 +12,13 @@ const label = (text: string): string => {
   return `${icon} ${labelChalk(text)}`;
 };
 
-export const printAppInfo = (
-  port: number,
-  env: string,
-  appUrl: string,
-  apiUrl: string
-) => {
+export const printAppInfo = (port: number, env: string, appUrl: string, apiUrl: string) => {
   const {
     docs: { swaggerUIPath, apiDocsPath },
   } = appConfig;
   const divider = HR('blue', '~', 55);
   const urlChalk = chalk.underline.blue;
-  const serverSuccessMessage = primaryChalk.bold(
-    '🚀 Server successfully started'
-  );
+  const serverSuccessMessage = primaryChalk.bold('🚀 Server successfully started');
   console.log(`
     \r${divider}\n
     \r${serverSuccessMessage}\n
