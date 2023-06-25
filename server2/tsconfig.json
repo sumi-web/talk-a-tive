@@ -24,6 +24,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "allowJs": true,
+    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

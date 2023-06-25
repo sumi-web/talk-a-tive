@@ -3,6 +3,10 @@ import path from 'path';
 import { config as configDotenv } from 'dotenv';
 import { type CommonEnvKeys } from '@/types/environment.type';
 import { EnvironmentFile, Environments } from '@/enums/environment.enum';
+import appConfig from '@/config/app.config';
+import { cleanEnv } from 'envalid';
+import envValidationConfig from '@/config/env-validation.config';
+import { envFileNotFoundError } from '@/utils/helper';
 
 export interface IEnvironment {
   getCurrentEnvironment: () => string;
@@ -68,7 +72,7 @@ class Environment implements IEnvironment {
   public setEnvironment(env = Environments.DEV): void {
     this.env = env;
 
-    const envKey = Object.keys(Environments).find((key) => Environments[key] === this.env) as keyof typeof Environments;
+    const envKey = Object.keys(Environments).find((key) => Environments[key as keyof typeof Environments] === this.env) as keyof typeof Environments;
     const envPath = this.resolveEnvPath(envKey);
 
     configDotenv({ path: envPath });
