@@ -8,7 +8,6 @@ import environment from './lib/environment';
 // import expressJSDocSwaggerConfig from './config/express-jsdoc-swagger.config';
 import appConfig from './config/app.config';
 import errorHandler from '@/middlewares/error-handler';
-// import routes from '@/modules/index';
 import prismaClient from '@/lib/prisma';
 import home from './home';
 

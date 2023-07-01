@@ -28,10 +28,8 @@ datasource db {
 //   userId Int     @unique
 // }
 
-// model User {
-//   id      Int      @id @default(autoincrement())
-//   email   String   @unique
-//   name    String?
-//   posts   Post[]
-//   profile Profile?
-// }
+model User {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+}
