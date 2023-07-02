@@ -26,6 +26,7 @@ if (!environment.isDev()) {
 }
 
 const { printf, combine, label, timestamp, json, prettyPrint } = format;
+
 const logFormattter = printf(({ level, message, label, timestamp }) => {
   return `[${String(label)}] ${String(timestamp)} ${level}: ${String(message)}`;
 });

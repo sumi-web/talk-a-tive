@@ -43,6 +43,7 @@ class App {
     } = appConfig;
     const { env } = environment;
     this.express.use('/', home);
+
     // this.express.use(`/api/${version}/${env}`, routes);
   }
 

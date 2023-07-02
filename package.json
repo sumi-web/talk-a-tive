@@ -8,7 +8,6 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@types/helmet": "^4.0.0",
     "concurrently": "^7.6.0",
     "husky": "^8.0.0",
     "prettier": "^2.8.3"

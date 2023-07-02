@@ -7,7 +7,7 @@ import environment from '@/lib/environment';
 
 configDotenv();
 
-server.listen(process.env.PORT, () => {
+server.listen(environment.port, () => {
   const { port, env, appUrl: _appUrl } = environment;
   const {
     api: { basePath, version },
