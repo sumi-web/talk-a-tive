@@ -10,6 +10,7 @@ import appConfig from './config/app.config';
 import errorHandler from '@/middlewares/error-handler';
 import prismaClient from '@/lib/prisma';
 import home from './home';
+import routes from '@/modules/index';
 
 class App {
   public express: express.Application;
@@ -44,7 +45,7 @@ class App {
     const { env } = environment;
     this.express.use('/', home);
 
-    // this.express.use(`/api/${version}/${env}`, routes);
+    this.express.use(`/api/${version}/${env}`, routes);
   }
 
   private setErrorHandler(): void {
