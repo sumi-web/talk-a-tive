@@ -31,7 +31,7 @@ const errorHandler = (err: ApiError, req: Request, res: Response, next: NextFunc
     errorBody.stack = err.stack;
   }
 
-  res.status(status).send(errorBody);
+  res.status(status).json(errorBody);
 
   next();
 };

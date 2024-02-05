@@ -1,6 +1,6 @@
 import cors from 'cors';
 import nocache from 'nocache';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 // import expressJSDocSwagger from 'express-jsdoc-swagger';
@@ -35,7 +35,7 @@ class App {
   }
 
   private disableSettings(): void {
-    // this.express.disable('x-powered-by');
+    this.express.disable('x-powered-by');
   }
 
   private setRoutes(): void {
@@ -46,6 +46,21 @@ class App {
     this.express.use('/', home);
 
     this.express.use(`/api/${version}/${env}`, routes);
+
+    this.express.get('/healthcheck', async (_req: Request, res: Response, next) => {
+      const jsMemory = Math.round(process.memoryUsage().heapUsed / (1024 * 1024));
+      const ram = Math.round(process.memoryUsage().rss / (1024 * 1024));
+
+      res.status(200).json({
+        isProd: environment.isProd(),
+        uptime: process.uptime(),
+        memory: {
+          node: `${jsMemory}MB`,
+          totalApp: `${ram}MB`,
+        },
+        message: 'Welcome to Talk a tive',
+      });
+    });
   }
 
   private setErrorHandler(): void {
