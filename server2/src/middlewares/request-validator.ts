@@ -13,11 +13,12 @@ export default class RequestValidator {
 
         next();
       } catch (errors: any) {
-        console.log('errors', errors);
+        console.log('errors in validating schema', errors);
         if (errors.length > 0) {
           let rawErrors: string[] = [];
+
           for (const errorItem of errors) {
-            rawErrors = rawErrors.concat(...rawErrors, Object.values(errorItem.constraints ?? []));
+            rawErrors = rawErrors.concat(Object.values(errorItem.constraints ?? []));
           }
           const validationErrorText = 'Request validation failed!';
           logger.error(rawErrors);

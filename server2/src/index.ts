@@ -1,11 +1,8 @@
-import { config as configDotenv } from 'dotenv';
 import server from './app';
 import { printAppInfo } from './utils/print-app-info';
 import appConfig from './config/app.config';
 import prismaClient from '@/lib/prisma';
 import environment from '@/lib/environment';
-
-configDotenv();
 
 server.listen(environment.port, () => {
   const { port, env, appUrl: _appUrl } = environment;

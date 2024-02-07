@@ -6,4 +6,18 @@ export class CreateUserDto {
 
   @IsString()
   name: string;
+
+  @IsString()
+  password: string;
+
+  @IsOptional()
+  avatar: File;
+}
+
+export class LogInUserDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
 }

@@ -26,8 +26,8 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "prisma": "^5.9.1",
     "@prisma/client": "^5.9.1",
+    "argon2": "^0.31.2",
     "axios": "^1.6.7",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -39,7 +39,11 @@
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
     "nocache": "^4.0.0",
+    "prisma": "^5.9.1",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
