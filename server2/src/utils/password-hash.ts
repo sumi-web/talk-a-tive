@@ -1,6 +1,6 @@
 import argon2 from 'argon2';
 
-export class PasswordHash {
+class PasswordHash {
   public async hash(password: string) {
     try {
       const hash = await argon2.hash(password);
@@ -25,3 +25,5 @@ export class PasswordHash {
     }
   }
 }
+
+export const passwordHash = new PasswordHash();

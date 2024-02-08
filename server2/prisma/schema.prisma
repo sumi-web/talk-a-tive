@@ -31,11 +31,11 @@ datasource db {
 
 model User {
   id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String 
-  password String
-  hash String?
-  hashExpiry DateTime?
+  email   String   @unique @db.VarChar(255)
+  name    String   @db.VarChar(255)
+  password String  @db.VarChar(255)
+  hash String?     @db.VarChar(255)
+  hashExpiry DateTime? 
   avatar String? @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt  

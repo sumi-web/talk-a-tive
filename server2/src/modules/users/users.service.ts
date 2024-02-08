@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { ApiError } from '@/lib/errors';
 import { HttpStatusCode } from 'axios';
 import { LogInUserDto } from '@/dto/user.dto';
+import { passwordHash } from '@/utils/password-hash';
 
 export default class UserService {
   public async createUser(data: User) {
@@ -12,9 +13,7 @@ export default class UserService {
       throw new ApiError(HttpStatusCode.Forbidden, 'User already exist');
     }
 
-    const user = await prisma.user.create({ data });
-
-    return user;
+    return await prisma.user.signUp(data);
   }
 
   public async logInUser(data: LogInUserDto) {
@@ -24,6 +23,15 @@ export default class UserService {
       throw new ApiError(HttpStatusCode.NotFound, 'User does not found');
     }
 
-    console.log('user ==>', user);
+    const success = await passwordHash.comparePassword(user.password, data.password);
+
+    if (!success) {
+      throw new ApiError(HttpStatusCode.Unauthorized, 'Password is incorrect');
+    }
+
+    //  return user with token
+    const { password, ...rest } = user;
+
+    return rest;
   }
 }

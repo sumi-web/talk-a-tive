@@ -1,27 +1,36 @@
-import { PasswordHash } from '@/utils/password-hash';
-import { PrismaClient } from '@prisma/client';
+import { passwordHash } from '@/utils/password-hash';
+import { PrismaClient, type User } from '@prisma/client';
 
 const prisma = new PrismaClient().$extends({
   name: 'name',
-  query: {
+  model: {
     user: {
-      async create({ args, query }) {
-        const passwordHash = new PasswordHash();
-        // take incoming password and hash it
-        args.data.password = await passwordHash.hash(args.data.password);
+      async signUp(data: User) {
+        const hash = await passwordHash.hash(data.password);
 
-        return query(args);
+        const user = await prisma.user.create({
+          data: {
+            ...data,
+            password: hash,
+          },
+        });
+
+        const { password, ...rest } = user;
+
+        return rest;
       },
-    },
-  },
-  result: {
-    user: {
-      // removed password on fetching user
-      password: {
-        needs: {},
-        compute() {
-          return undefined;
-        },
+      // fetch user without password
+      async getUserWithoutPassword({ email, id }: { id?: number; email?: string }) {
+        if (email || id) {
+          const user = await prisma.user.findUnique({
+            where: { email, id },
+          });
+
+          if (user) {
+            const { password, ...rest } = user;
+            return rest;
+          }
+        }
       },
     },
   },
