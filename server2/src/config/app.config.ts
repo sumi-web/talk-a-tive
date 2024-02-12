@@ -1,4 +1,5 @@
 import { DEFAULT_PORT } from '@/utils/constants';
+import { JWT_SECRET_KEY } from '@/utils/constants';
 
 interface AppConfig {
   api: {
@@ -22,6 +23,11 @@ interface AppConfig {
      * Open api specs path
      */
     apiDocsPath: string;
+  };
+  jwt: {
+    secret: typeof JWT_SECRET_KEY;
+    accessExpirationMinutes: number;
+    refreshExpirationDays: number;
   };
   logs: {
     /**
@@ -50,6 +56,11 @@ const appConfig: AppConfig = {
   docs: {
     swaggerUIPath: '/v1/swagger',
     apiDocsPath: '/v1/api-docs',
+  },
+  jwt: {
+    secret: JWT_SECRET_KEY,
+    accessExpirationMinutes: 30,
+    refreshExpirationDays: 30,
   },
   logs: {
     dir: './logs',

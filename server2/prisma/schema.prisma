@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // model Post {
 //   id        Int      @id @default(autoincrement())
 //   createdAt DateTime @default(now())
@@ -30,13 +29,38 @@ datasource db {
 // }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique @db.VarChar(255)
-  name    String   @db.VarChar(255)
-  password String  @db.VarChar(255)
-  hash String?     @db.VarChar(255)
-  hashExpiry DateTime? 
-  avatar String? @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt  
+  id         Int       @id @default(autoincrement())
+  email      String    @unique @db.VarChar(255)
+  name       String    @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  role       Role      @default(USER)
+  hash       String?   @db.VarChar(255)
+  hashExpiry DateTime?
+  avatar     String?   @default("")
+  Token      Token[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Token {
+  id          Int       @id @default(autoincrement())
+  token       String
+  type        TokenType
+  expires     DateTime
+  blacklisted Boolean
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
 }

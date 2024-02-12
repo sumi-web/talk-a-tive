@@ -18,7 +18,9 @@ export default class RequestValidator {
           let rawErrors: string[] = [];
 
           for (const errorItem of errors) {
-            rawErrors = rawErrors.concat(Object.values(errorItem.constraints ?? []));
+            const returnedErrors = Object.values(errorItem.constraints ?? []);
+
+            rawErrors = rawErrors.concat(returnedErrors.length > 0 ? (returnedErrors[0] as string[]) : []);
           }
           const validationErrorText = 'Request validation failed!';
           logger.error(rawErrors);

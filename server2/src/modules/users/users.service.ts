@@ -1,19 +1,20 @@
-import { type User } from '@prisma/client';
+import { TokenType, type User } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { ApiError } from '@/lib/errors';
 import { HttpStatusCode } from 'axios';
 import { LogInUserDto } from '@/dto/user.dto';
 import { passwordHash } from '@/utils/password-hash';
+import jwtTokens from '@/lib/jwt-tokens';
 
 export default class UserService {
   public async createUser(data: User) {
     const alreadyUserExist = await prisma.user.findUnique({ where: { email: data.email } });
 
     if (alreadyUserExist) {
-      throw new ApiError(HttpStatusCode.Forbidden, 'User already exist');
+      throw new ApiError(HttpStatusCode.BadRequest, 'Email already taken');
     }
 
-    return await prisma.user.signUp(data);
+    return await prisma.user.create({ data });
   }
 
   public async logInUser(data: LogInUserDto) {
